@@ -9,7 +9,7 @@
     "node_modules",
     "src",
     "test"
-  ]
+  ],
   "dependencies": {
     "jquery": ">=1.5"
   }
