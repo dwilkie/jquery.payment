@@ -1,5 +1,4 @@
-$            = jQuery
-$.payment    = {}
+$.payment = {}
 $.payment.fn = {}
 $.fn.payment = (method, args...) ->
   $.payment.fn[method].apply(this, args)
@@ -8,105 +7,105 @@ $.fn.payment = (method, args...) ->
 
 defaultFormat = /(\d{1,4})/g
 
-cards = [
+$.payment.cards = cards = [
   # Debit cards must come first, since they have more
   # specific patterns than their credit-card equivalents.
   {
-      type: "wing"
-      pattern: /^501818/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [4]
-      luhn: false
+    type: "wing"
+    pattern: /^501818/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [4]
+    luhn: false
   }
   {
-      type: 'visaelectron'
-      pattern: /^4(026|17500|405|508|844|91[37])/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [3]
-      luhn: true
+    type: 'visaelectron'
+    pattern: /^4(026|17500|405|508|844|91[37])/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'maestro'
-      pattern: /^(5(018|0[23]|[68])|6(39|7))/
-      format: defaultFormat
-      length: [12..19]
-      cvcLength: [3]
-      luhn: true
+    type: 'maestro'
+    pattern: /^(5(018|0[23]|[68])|6(39|7))/
+    format: defaultFormat
+    length: [12..19]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'forbrugsforeningen'
-      pattern: /^600/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [3]
-      luhn: true
+    type: 'forbrugsforeningen'
+    pattern: /^600/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'dankort'
-      pattern: /^5019/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [3]
-      luhn: true
+    type: 'dankort'
+    pattern: /^5019/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [3]
+    luhn: true
   }
   # Credit cards
   {
-      type: 'visa'
-      pattern: /^4/
-      format: defaultFormat
-      length: [13, 16]
-      cvcLength: [3]
-      luhn: true
+    type: 'visa'
+    pattern: /^4/
+    format: defaultFormat
+    length: [13, 16]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'mastercard'
-      pattern: /^5[0-5]/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [3]
-      luhn: true
+    type: 'mastercard'
+    pattern: /^5[0-5]/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'amex'
-      pattern: /^3[47]/
-      format: /(\d{1,4})(\d{1,6})?(\d{1,5})?/
-      length: [15]
-      cvcLength: [3..4]
-      luhn: true
+    type: 'amex'
+    pattern: /^3[47]/
+    format: /(\d{1,4})(\d{1,6})?(\d{1,5})?/
+    length: [15]
+    cvcLength: [3..4]
+    luhn: true
   }
   {
-      type: 'dinersclub'
-      pattern: /^3[0689]/
-      format: defaultFormat
-      length: [14]
-      cvcLength: [3]
-      luhn: true
+    type: 'dinersclub'
+    pattern: /^3[0689]/
+    format: defaultFormat
+    length: [14]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'discover'
-      pattern: /^6([045]|22)/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [3]
-      luhn: true
+    type: 'discover'
+    pattern: /^6([045]|22)/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [3]
+    luhn: true
   }
   {
-      type: 'unionpay'
-      pattern: /^(62|88)/
-      format: defaultFormat
-      length: [16..19]
-      cvcLength: [3]
-      luhn: false
+    type: 'unionpay'
+    pattern: /^(62|88)/
+    format: defaultFormat
+    length: [16..19]
+    cvcLength: [3]
+    luhn: false
   }
   {
-      type: 'jcb'
-      pattern: /^35/
-      format: defaultFormat
-      length: [16]
-      cvcLength: [3]
-      luhn: true
+    type: 'jcb'
+    pattern: /^35/
+    format: defaultFormat
+    length: [16]
+    cvcLength: [3]
+    luhn: true
   }
 ]
 
@@ -137,11 +136,21 @@ hasTextSelected = ($target) ->
     $target.prop('selectionStart') isnt $target.prop('selectionEnd')
 
   # If some text is selected in IE
-  return true if document?.selection?.createRange?().text
+  if document?.selection?.createRange?
+    return true if document.selection.createRange().text
 
   false
 
 # Private
+
+# Format Numeric
+
+reFormatNumeric = (e) ->
+  setTimeout ->
+    $target = $(e.currentTarget)
+    value   = $target.val()
+    value   = value.replace(/\D/g, '')
+    $target.val(value)
 
 # Format Card Number
 
@@ -197,13 +206,14 @@ formatBackCardNumber = (e) ->
   return if $target.prop('selectionStart')? and
     $target.prop('selectionStart') isnt value.length
 
-  # Remove the trailing space
+  # Remove the digit + trailing space
   if /\d\s$/.test(value)
     e.preventDefault()
     setTimeout -> $target.val(value.replace(/\d\s$/, ''))
+  # Remove digit if ends in space + digit
   else if /\s\d?$/.test(value)
     e.preventDefault()
-    setTimeout -> $target.val(value.replace(/\s\d?$/, ''))
+    setTimeout -> $target.val(value.replace(/\d$/, ''))
 
 # Format Expiry
 
@@ -261,12 +271,21 @@ formatBackExpiry = (e) ->
   return if $target.prop('selectionStart')? and
     $target.prop('selectionStart') isnt value.length
 
-  # Remove the trailing space
-  if /\s\/\s\d?$/.test(value)
+  # Remove the trailing space + last digit
+  if /\d\s\/\s$/.test(value)
     e.preventDefault()
-    setTimeout -> $target.val(value.replace(/\s\/\s\d?$/, ''))
+    setTimeout -> $target.val(value.replace(/\d\s\/\s$/, ''))
 
-#  Restrictions
+# Format CVC
+
+reFormatCVC = (e) ->
+  setTimeout ->
+    $target = $(e.currentTarget)
+    value   = $target.val()
+    value   = value.replace(/\D/g, '')[0...4]
+    $target.val(value)
+
+# Restrictions
 
 restrictNumeric = (e) ->
   # Key event is for a browser shortcut
@@ -345,12 +364,15 @@ setCardType = (e) ->
 # Formatting
 
 $.payment.fn.formatCardCVC = ->
-  @payment('restrictNumeric')
+  @on('keypress', restrictNumeric)
   @on('keypress', restrictCVC)
+  @on('paste', reFormatCVC)
+  @on('change', reFormatCVC)
+  @on('input', reFormatCVC)
   this
 
 $.payment.fn.formatCardExpiry = ->
-  @payment('restrictNumeric')
+  @on('keypress', restrictNumeric)
   @on('keypress', restrictExpiry)
   @on('keypress', formatExpiry)
   @on('keypress', formatForwardSlashAndSpace)
@@ -361,7 +383,7 @@ $.payment.fn.formatCardExpiry = ->
   this
 
 $.payment.fn.formatCardNumber = ->
-  @payment('restrictNumeric')
+  @on('keypress', restrictNumeric)
   @on('keypress', restrictCardNumber)
   @on('keypress', formatCardNumber)
   @on('keydown', formatBackCardNumber)
@@ -376,6 +398,9 @@ $.payment.fn.formatCardNumber = ->
 
 $.payment.fn.restrictNumeric = ->
   @on('keypress', restrictNumeric)
+  @on('paste', reFormatNumeric)
+  @on('change', reFormatNumeric)
+  @on('input', reFormatNumeric)
   this
 
 # Validations
@@ -460,12 +485,11 @@ $.payment.cardType = (num) ->
   cardFromNumber(num)?.type or null
 
 $.payment.formatCardNumber = (num) ->
+  num = num.replace(/\D/g, '')
   card = cardFromNumber(num)
   return num unless card
 
   upperLength = card.length[card.length.length - 1]
-
-  num = num.replace(/\D/g, '')
   num = num[0...upperLength]
 
   if card.format.global
